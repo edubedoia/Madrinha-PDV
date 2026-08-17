@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 350" fill="none">
+  <!-- Outer Dark Badge Background -->
+  <path d="M70,170 C40,170 20,195 20,225 C20,255 45,280 80,280 L130,280 C150,330 200,345 250,345 C300,345 350,330 370,280 L420,280 C455,280 480,255 480,225 C480,195 460,170 430,170 C445,150 440,110 410,90 C390,75 365,80 350,90 C340,40 290,10 250,10 C210,10 160,40 150,90 C135,80 110,75 90,90 C60,110 55,150 70,170 Z" fill="#212121" stroke="#212121" stroke-width="4" stroke-linejoin="round"/>
+
+  <!-- Top Illustration Area: Sky & Ground -->
+  <!-- White Hills & Cactus Landscape -->
+  <g transform="translate(110, 45)">
+    <!-- Cloud / Mountain background silhouettes inside badge -->
+    <path d="M40,110 C40,70 80,45 110,65 C130,40 170,40 190,75 C210,55 240,65 240,110 Z" fill="#2d2d2d"/>
+    
+    <!-- Cactus on left -->
+    <path d="M60,110 L60,45 C60,37 72,37 72,45 L72,60 C72,62 82,62 82,60 L82,50 C82,45 92,45 92,50 L92,75 C92,85 72,85 72,85 L72,110 Z" fill="#ffffff"/>
+    <path d="M60,70 C50,70 50,60 50,55 C50,50 40,50 40,55 L40,75 C40,85 60,85 60,85 Z" fill="#ffffff"/>
+    
+    <!-- Grass Tufts -->
+    <path d="M30,110 L40,85 L46,110 L56,90 L62,110" stroke="#ffffff" stroke-width="4" stroke-linecap="round" fill="none"/>
+    <path d="M80,110 L88,95 L95,110" stroke="#ffffff" stroke-width="3" stroke-linecap="round" fill="none"/>
+
+    <!-- Hill on right with lines -->
+    <path d="M140,110 C160,80 230,85 250,110 Z" fill="#ffffff"/>
+    <path d="M155,102 C175,88 220,92 235,102" stroke="#212121" stroke-width="2" fill="none"/>
+    <path d="M165,108 C185,98 210,100 225,108" stroke="#212121" stroke-width="2" fill="none"/>
+
+    <!-- Yellow Star -->
+    <polygon points="195,35 200,48 214,48 203,57 207,70 195,62 183,70 187,57 176,48 190,48" fill="#F5A623"/>
+
+    <!-- Central Wooden Spoon Handle and Head Silhouette -->
+    <path d="M135,110 L135,55 C135,30 140,15 150,15 C160,15 165,30 165,55 L165,110 Z" fill="#ffffff"/>
+    <path d="M142,50 C142,28 145,22 150,22 C155,22 158,28 158,50 Z" fill="#212121"/>
+  </g>
+
+  <!-- Central "MADRINHA" typography -->
+  <text x="250" y="245" text-anchor="middle" font-family="'Impact', 'Arial Black', 'Trebuchet MS', sans-serif" font-weight="900" font-size="76" fill="#F5A623" letter-spacing="2">MADRINHA</text>
+
+  <!-- Subtitle Ribbon: "COZINHA ARTESANAL" -->
+  <g transform="translate(0, 255)">
+    <text x="250" y="28" text-anchor="middle" font-family="'Arial Black', 'Montserrat', sans-serif" font-weight="800" font-size="20" fill="#F5A623" letter-spacing="6">COZINHA ARTESANAL</text>
+  </g>
+
+  <!-- Bottom Plate / Base lines -->
+  <g transform="translate(150, 305)">
+    <path d="M10,0 L190,0" stroke="#ffffff" stroke-width="2"/>
+    <path d="M20,6 L180,6" stroke="#ffffff" stroke-width="2"/>
+    <path d="M40,12 L160,12" stroke="#ffffff" stroke-width="2"/>
+    <path d="M70,18 L130,18" stroke="#ffffff" stroke-width="2"/>
+  </g>
+</svg>

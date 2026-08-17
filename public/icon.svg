@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- App Icon Background -->
+  <rect width="512" height="512" rx="110" fill="#09090b"/>
+  
+  <!-- Centered Logo with padding -->
+  <g transform="translate(16, 75) scale(0.96)">
+    <!-- Outer Badge Silhouette -->
+    <path d="M70,170 C35,170 15,195 15,225 C15,255 40,282 80,282 L130,282 C150,335 200,350 250,350 C300,350 350,335 370,282 L420,282 C460,282 485,255 485,225 C485,195 465,170 430,170 C448,148 442,108 412,88 C392,72 366,78 350,88 C340,36 290,6 250,6 C210,6 160,36 150,88 C134,78 108,72 88,88 C58,108 52,148 70,170 Z" fill="#1C1C1E" stroke="#ea580c" stroke-width="4" stroke-linejoin="round"/>
+
+    <!-- Top Landscape Area -->
+    <g transform="translate(110, 42)">
+      <!-- Cloud/Mountain background behind spoon/cactus -->
+      <path d="M35,115 C35,68 80,40 110,65 C130,38 170,38 190,72 C210,50 245,62 245,115 Z" fill="#252528"/>
+      
+      <!-- Cactus on Left -->
+      <path d="M58,115 L58,48 C58,39 70,39 70,48 L70,62 C70,64 80,64 80,62 L80,52 C80,47 90,47 90,52 L90,75 C90,85 70,85 70,85 L70,115 Z" fill="#FFFFFF"/>
+      <path d="M58,72 C48,72 48,62 48,57 C48,52 38,52 38,57 L38,76 C38,86 58,86 58,86 Z" fill="#FFFFFF"/>
+      
+      <!-- Grass Tufts under cactus -->
+      <path d="M28,115 L38,90 L44,115 L54,94 L60,115" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" fill="none"/>
+      <path d="M78,115 L86,100 L93,115" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" fill="none"/>
+
+      <!-- Mountain / Hill on Right with contour lines -->
+      <path d="M138,115 C158,82 232,86 250,115 Z" fill="#FFFFFF"/>
+      <path d="M152,105 C174,90 222,94 238,105" stroke="#1C1C1E" stroke-width="2.5" fill="none"/>
+      <path d="M162,111 C182,101 212,103 228,111" stroke="#1C1C1E" stroke-width="2.5" fill="none"/>
+
+      <!-- Yellow Star -->
+      <polygon points="196,32 201,46 215,46 204,55 208,68 196,60 184,68 188,55 177,46 191,46" fill="#F6A700"/>
+
+      <!-- Central Spoon -->
+      <path d="M133,115 L133,55 C133,26 138,12 150,12 C162,12 167,26 167,55 L167,115 Z" fill="#FFFFFF"/>
+      <path d="M141,50 C141,26 144,18 150,18 C156,18 159,26 159,50 Z" fill="#1C1C1E"/>
+    </g>
+
+    <!-- Typography: MADRINHA -->
+    <text x="250" y="245" text-anchor="middle" font-family="'Impact', 'Arial Black', 'Montserrat', sans-serif" font-weight="900" font-size="80" fill="#F6A700" letter-spacing="2">MADRINHA</text>
+    
+    <!-- Subtitle: COZINHA ARTESANAL -->
+    <text x="250" y="284" text-anchor="middle" font-family="'Arial Black', 'Montserrat', sans-serif" font-weight="900" font-size="21" fill="#F6A700" letter-spacing="6">COZINHA ARTESANAL</text>
+
+    <!-- Bottom Plate Lines -->
+    <g transform="translate(150, 308)">
+      <path d="M10,0 L190,0" stroke="#FFFFFF" stroke-width="2.5"/>
+      <path d="M20,6 L180,6" stroke="#FFFFFF" stroke-width="2.5"/>
+      <path d="M40,12 L160,12" stroke="#FFFFFF" stroke-width="2.5"/>
+      <path d="M70,18 L130,18" stroke="#FFFFFF" stroke-width="2.5"/>
+    </g>
+  </g>
+</svg>

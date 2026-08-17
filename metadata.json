@@ -1,0 +1,6 @@
+{
+  "name": "Madrinha PDV",
+  "description": "PDV e Diário de Feiras para a Madrinha Cozinha Artesanal.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
