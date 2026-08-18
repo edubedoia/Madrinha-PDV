@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store';
-import { calculateEventSummary, formatCurrency } from '../lib/utils';
+import { calculateEventSummary, formatCurrency, slugifyFilename } from '../lib/utils';
 import { ArrowLeft, ShoppingBag, Receipt, Gift, Download, AlertCircle, Camera, Trash2, HelpCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -38,35 +38,115 @@ export default function EventDetails() {
   const summary = calculateEventSummary(event.id, sales, expenses, donations, products, event.hoursWorked);
   const eventSales = sales.filter(s => s.eventId === event.id);
   const eventExpenses = expenses.filter(s => s.eventId === event.id);
+  const eventDonations = donations.filter(d => d.eventId === event.id);
 
   const handleExportCSV = () => {
-    // Generate CSV for Sales
-    let csv = `RELATORIO DA FEIRA: ${event.name.toUpperCase()}\n`;
-    csv += `Data: ${event.date} | Local: ${event.location}\n\n`;
-    
-    csv += `RESUMO FINANCEIRO\n`;
-    csv += `Faturamento Bruto,${summary.revenue}\n`;
-    csv += `Custos dos Produtos (CMV),${summary.productCosts}\n`;
-    csv += `Despesas Extras,${summary.expenses}\n`;
-    csv += `Custos com Doacoes,${summary.donationCosts}\n`;
-    csv += `LUCRO LIQUIDO,${summary.netProfit}\n`;
-    csv += `Margem de Lucro,${summary.margin.toFixed(2)}%\n`;
-    csv += `Retorno (ROI),${summary.roi.toFixed(2)}%\n`;
-    csv += `Lucro por Hora,${summary.profitPerHour}\n\n`;
+    // Escape cell values for CSV
+    const escapeCsv = (val: any) => {
+      if (val === null || val === undefined) return '';
+      const str = String(val).replace(/"/g, '""');
+      return str.includes(',') || str.includes(';') || str.includes('\n') || str.includes('"')
+        ? `"${str}"`
+        : str;
+    };
 
-    csv += `VENDAS REGISTRADAS\n`;
-    csv += `Data/Hora,Produto,Quantidade,Total,Forma de Pagamento\n`;
-    eventSales.forEach(sale => {
-      const product = products.find(p => p.id === sale.productId);
-      const time = new Date(sale.timestamp).toLocaleTimeString('pt-BR');
-      csv += `${time},${product?.name || 'Item Excluido'},${sale.quantity},${sale.total},${sale.paymentMethod}\n`;
+    // Format date for display in report
+    let formattedDate = event.date;
+    try {
+      if (event.date.includes('-')) {
+        const [year, month, day] = event.date.split('-');
+        formattedDate = `${day}/${month}/${year}`;
+      }
+    } catch {
+      formattedDate = event.date;
+    }
+
+    // Build CSV with UTF-8 BOM so Excel opens it with perfect accents
+    let csv = `\uFEFF`;
+    csv += `RELATORIO DE RESULTADOS - MADRINHA COZINHA ARTESANAL\n`;
+    csv += `Nome da Feira,${escapeCsv(event.name)}\n`;
+    csv += `Data de Realizacao,${escapeCsv(formattedDate)} (${escapeCsv(event.date)})\n`;
+    csv += `Local de Realizacao,${escapeCsv(event.location)}\n`;
+    csv += `Horas Trabalhadas,${escapeCsv(event.hoursWorked)}h\n`;
+    csv += `Status do Evento,${escapeCsv(event.status === 'closed' ? 'Fechada / Encerrada' : 'Em Andamento')}\n`;
+    if (event.rating) {
+      csv += `Avaliacao da Feira,${escapeCsv(event.rating)} Estrelas\n`;
+    }
+    csv += `Data de Exportacao,${escapeCsv(new Date().toLocaleString('pt-BR'))}\n\n`;
+    
+    csv += `--- RESUMO FINANCEIRO CONSOLIDADO ---\n`;
+    csv += `Indicador,Valor\n`;
+    csv += `Faturamento Bruto,${escapeCsv(summary.revenue.toFixed(2))}\n`;
+    csv += `Custo das Mercadorias Vendidas (CMV),${escapeCsv(summary.productCosts.toFixed(2))}\n`;
+    csv += `Despesas Operacionais Extras,${escapeCsv(summary.expenses.toFixed(2))}\n`;
+    csv += `Custo com Doacoes e Cortesias,${escapeCsv(summary.donationCosts.toFixed(2))}\n`;
+    csv += `Custo Total Consolidado,${escapeCsv(summary.totalCosts.toFixed(2))}\n`;
+    csv += `LUCRO LIQUIDO REAL,${escapeCsv(summary.netProfit.toFixed(2))}\n`;
+    csv += `Margem de Lucro Real,${escapeCsv(summary.margin.toFixed(2))}%\n`;
+    csv += `Retorno sobre Investimento (ROI),${escapeCsv(summary.roi.toFixed(2))}%\n`;
+    csv += `Lucro Medio por Hora,${escapeCsv(summary.profitPerHour.toFixed(2))}\n`;
+    csv += `Total de Itens Vendidos,${escapeCsv(summary.totalItemsSold)}\n`;
+    csv += `Total de Pedidos/Vendas,${escapeCsv(eventSales.length)}\n\n`;
+
+    // Payment methods summary
+    const payMap: Record<string, number> = {};
+    eventSales.forEach(s => {
+      const method = s.paymentMethod || 'Outro';
+      payMap[method] = (payMap[method] || 0) + s.total;
     });
+    csv += `--- FATURAMENTO POR FORMA DE PAGAMENTO ---\n`;
+    csv += `Forma de Pagamento,Total Faturado\n`;
+    Object.entries(payMap).forEach(([method, total]) => {
+      csv += `${escapeCsv(method)},${escapeCsv(total.toFixed(2))}\n`;
+    });
+    csv += `\n`;
+
+    csv += `--- DETALHAMENTO DE VENDAS REGISTRADAS ---\n`;
+    csv += `Horario,Produto,Quantidade,Preco Unitario,Total da Venda,Forma de Pagamento\n`;
+    if (eventSales.length === 0) {
+      csv += `Nenhuma venda registrada nesta feira.\n`;
+    } else {
+      eventSales.forEach(sale => {
+        const product = products.find(p => p.id === sale.productId);
+        const time = new Date(sale.timestamp).toLocaleTimeString('pt-BR');
+        const unitPrice = sale.quantity > 0 ? (sale.total / sale.quantity).toFixed(2) : '0.00';
+        csv += `${escapeCsv(time)},${escapeCsv(product?.name || 'Item Excluido')},${escapeCsv(sale.quantity)},${escapeCsv(unitPrice)},${escapeCsv(sale.total.toFixed(2))},${escapeCsv(sale.paymentMethod)}\n`;
+      });
+    }
+    csv += `\n`;
+
+    csv += `--- DETALHAMENTO DE DESPESAS EXTRAS ---\n`;
+    csv += `Descricao,Categoria,Valor\n`;
+    if (eventExpenses.length === 0) {
+      csv += `Nenhuma despesa extra registrada.\n`;
+    } else {
+      eventExpenses.forEach(exp => {
+        csv += `${escapeCsv(exp.description)},${escapeCsv(exp.category)},${escapeCsv(exp.amount.toFixed(2))}\n`;
+      });
+    }
+    csv += `\n`;
+
+    csv += `--- DETALHAMENTO DE DOACOES E CORTESIAS ---\n`;
+    csv += `Produto,Quantidade,Custo Unitario,Custo Total,Motivo / Destinatario\n`;
+    if (eventDonations.length === 0) {
+      csv += `Nenhuma doacao registrada.\n`;
+    } else {
+      eventDonations.forEach(don => {
+        const product = products.find(p => p.id === don.productId);
+        const unitCost = product?.cost || 0;
+        const totalCost = unitCost * don.quantity;
+        csv += `${escapeCsv(product?.name || 'Item Removido')},${escapeCsv(don.quantity)},${escapeCsv(unitCost.toFixed(2))},${escapeCsv(totalCost.toFixed(2))},${escapeCsv(don.reason || '')}\n`;
+      });
+    }
+
+    const cleanFairName = slugifyFilename(event.name);
+    const fileName = `relatorio_${cleanFairName}_${event.date}.csv`;
 
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    link.setAttribute('download', `relatorio_feira_${event.date}.csv`);
+    link.setAttribute('download', fileName);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();

@@ -87,6 +87,16 @@ export async function readTextFileAutoEncoding(file: File): Promise<string> {
   }
 }
 
+export function slugifyFilename(text: string): string {
+  if (!text) return 'feira';
+  return text
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // remove diacritics
+    .replace(/[^a-zA-Z0-9_-]/g, '_') // replace non-alphanumeric with underscore
+    .replace(/_+/g, '_') // remove duplicate underscores
+    .replace(/^_+|_+$/g, ''); // trim underscores
+}
+
 export function formatCurrency(value: number) {
   return new Intl.NumberFormat('pt-BR', {
     style: 'currency',
