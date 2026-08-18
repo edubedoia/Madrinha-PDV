@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useAppStore } from '../store';
-import { formatCurrency } from '../lib/utils';
+import { formatCurrency, readTextFileAutoEncoding, fixMojibake } from '../lib/utils';
 import { Plus, Edit2, Trash2, X, Package, Upload, HelpCircle } from 'lucide-react';
 import HelpModal from './HelpModal';
 
@@ -20,7 +20,7 @@ export default function Products() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const productData = {
-      name: formData.name,
+      name: fixMojibake(formData.name.trim()),
       price: parseFloat(formData.price.replace(',', '.')),
       cost: parseFloat(formData.cost.replace(',', '.'))
     };
@@ -50,13 +50,12 @@ export default function Products() {
     setIsModalOpen(false);
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const csv = event.target?.result as string;
+    try {
+      const csv = await readTextFileAutoEncoding(file);
       if (!csv) return;
 
       const lines = csv.split(/\r?\n/);
@@ -70,7 +69,7 @@ export default function Products() {
 
         // Detect separator: comma or semicolon or tab
         const delimiter = line.includes(';') ? ';' : (line.includes('\t') ? '\t' : ',');
-        const parts = line.split(delimiter).map(p => p.trim().replace(/^["']|["']$/g, ''));
+        const parts = line.split(delimiter).map(p => fixMojibake(p.trim().replace(/^["']|["']$/g, '')));
 
         if (parts.length >= 2) {
           const name = parts[0];
@@ -99,13 +98,15 @@ export default function Products() {
         }
       }
       
-      alert(`${importedCount} produto(s) importado(s) com sucesso!`);
-      // Reset input
+      alert(`${importedCount} produto(s) importado(s) com sucesso em UTF-8!`);
+    } catch (err) {
+      console.error('Erro ao ler CSV:', err);
+      alert('Erro ao processar o arquivo CSV. Verifique a codificação do arquivo.');
+    } finally {
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
-    };
-    reader.readAsText(file);
+    }
   };
 
   const triggerFileInput = () => {

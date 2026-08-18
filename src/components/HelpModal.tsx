@@ -26,7 +26,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
   if (!isOpen) return null;
 
   const downloadCsvExample = () => {
-    const csvContent = "Nome do Produto,Preco de Venda,Custo de Producao\nPimenta Biquinho Defumada,25.00,10.00\nGeleia de Pimenta c/ Abacaxi,28.00,11.50\nMolho Habanero Extra Forte,32.00,13.00\nConserva Tradicional da Madrinha,22.00,9.00\nKit 3 Molhos Especiais,75.00,32.00";
+    const csvContent = "\uFEFFNome do Produto,Preço de Venda,Custo de Produção\nPimenta Biquinho Defumada,25.00,10.00\nGeleia de Pimenta c/ Abacaxi,28.00,11.50\nMolho Habanero Extra Forte,32.00,13.00\nConserva Tradicional da Madrinha,22.00,9.00\nKit 3 Molhos Especiais,75.00,32.00";
     
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);

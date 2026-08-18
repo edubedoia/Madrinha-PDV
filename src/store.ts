@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { v4 as uuidv4 } from 'uuid';
 import { Product, Event, Sale, Expense, Donation } from './types';
+import { fixMojibake } from './lib/utils';
 
 interface AppState {
   products: Product[];
@@ -29,6 +30,7 @@ interface AppState {
   deleteSale: (id: string) => void;
   deleteExpense: (id: string) => void;
   deleteDonation: (id: string) => void;
+  sanitizeAllData: () => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -44,11 +46,19 @@ export const useAppStore = create<AppState>()(
       setCustomLogo: (logo) => set({ customLogo: logo }),
       
       addProduct: (product) => set((state) => ({
-        products: [...state.products, { ...product, id: uuidv4() }]
+        products: [...state.products, { 
+          ...product, 
+          name: fixMojibake(product.name),
+          id: uuidv4() 
+        }]
       })),
       
       updateProduct: (id, productUpdate) => set((state) => ({
-        products: state.products.map(p => p.id === id ? { ...p, ...productUpdate } : p)
+        products: state.products.map(p => p.id === id ? { 
+          ...p, 
+          ...productUpdate,
+          name: productUpdate.name ? fixMojibake(productUpdate.name) : p.name
+        } : p)
       })),
       
       deleteProduct: (id) => set((state) => ({
@@ -58,13 +68,24 @@ export const useAppStore = create<AppState>()(
       addEvent: (event) => {
         const id = uuidv4();
         set((state) => ({
-          events: [...state.events, { ...event, id, status: 'active' }]
+          events: [...state.events, { 
+            ...event, 
+            name: fixMojibake(event.name),
+            location: fixMojibake(event.location),
+            id, 
+            status: 'active' 
+          }]
         }));
         return id;
       },
       
       updateEvent: (id, eventUpdate) => set((state) => ({
-        events: state.events.map(e => e.id === id ? { ...e, ...eventUpdate } : e)
+        events: state.events.map(e => e.id === id ? { 
+          ...e, 
+          ...eventUpdate,
+          name: eventUpdate.name ? fixMojibake(eventUpdate.name) : e.name,
+          location: eventUpdate.location ? fixMojibake(eventUpdate.location) : e.location
+        } : e)
       })),
       
       deleteEvent: (id) => set((state) => ({
@@ -83,11 +104,19 @@ export const useAppStore = create<AppState>()(
       })),
       
       addExpense: (expense) => set((state) => ({
-        expenses: [...state.expenses, { ...expense, id: uuidv4() }]
+        expenses: [...state.expenses, { 
+          ...expense, 
+          description: fixMojibake(expense.description),
+          id: uuidv4() 
+        }]
       })),
       
       addDonation: (donation) => set((state) => ({
-        donations: [...state.donations, { ...donation, id: uuidv4() }]
+        donations: [...state.donations, { 
+          ...donation, 
+          reason: fixMojibake(donation.reason),
+          id: uuidv4() 
+        }]
       })),
       
       deleteSale: (id) => set((state) => ({
@@ -101,10 +130,26 @@ export const useAppStore = create<AppState>()(
       deleteDonation: (id) => set((state) => ({
         donations: state.donations.filter(d => d.id !== id)
       })),
+
+      sanitizeAllData: () => set((state) => ({
+        products: state.products.map(p => ({ ...p, name: fixMojibake(p.name) })),
+        events: state.events.map(e => ({
+          ...e,
+          name: fixMojibake(e.name),
+          location: fixMojibake(e.location)
+        })),
+        expenses: state.expenses.map(exp => ({ ...exp, description: fixMojibake(exp.description) })),
+        donations: state.donations.map(d => ({ ...d, reason: fixMojibake(d.reason) }))
+      }))
     }),
     {
       name: 'madrinha-storage',
       storage: createJSONStorage(() => localStorage),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state.sanitizeAllData();
+        }
+      }
     }
   )
 );
