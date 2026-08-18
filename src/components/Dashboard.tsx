@@ -1,32 +1,22 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { useAppStore } from '../store';
 import { Link, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Plus, MapPin, Clock, ArrowRight, X, Trash2, Camera, HelpCircle } from 'lucide-react';
+import { Plus, MapPin, Clock, ArrowRight, X, Trash2, HelpCircle, Database } from 'lucide-react';
 import InstallModal from './InstallModal';
 import DeleteEventModal from './DeleteEventModal';
 import HelpModal from './HelpModal';
+import BackupModal from './BackupModal';
 import { Event } from '../types';
 
 export default function Dashboard() {
-  const { events, addEvent, customLogo, setCustomLogo } = useAppStore();
+  const { events, addEvent } = useAppStore();
   const navigate = useNavigate();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [isBackupOpen, setIsBackupOpen] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<Event | null>(null);
-
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCustomLogo(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
   
   const [formData, setFormData] = useState({
     name: '',
@@ -54,27 +44,13 @@ export default function Dashboard() {
     <div className="p-4 max-w-md mx-auto">
       <div className="flex justify-between items-center mb-6 pt-2">
         <div className="flex items-center gap-3">
-          <input 
-            type="file" 
-            ref={fileInputRef} 
-            onChange={handleLogoUpload} 
-            accept="image/*" 
-            className="hidden" 
-          />
-          <div 
-            onClick={() => fileInputRef.current?.click()}
-            title="Clique para trocar a logo"
-            className="relative w-12 h-12 flex items-center justify-center flex-shrink-0 cursor-pointer group"
-          >
+          <div className="relative w-12 h-12 flex items-center justify-center flex-shrink-0">
             <img 
-              src={customLogo || "/madrinha_logo.png"} 
-              alt="Logo" 
-              className="w-full h-full object-contain filter drop-shadow group-hover:opacity-80 transition-opacity"
+              src="/madrinha_logo.png" 
+              alt="Madrinha Cozinha Artesanal" 
+              className="w-full h-full object-contain filter drop-shadow"
               referrerPolicy="no-referrer"
             />
-            <div className="absolute inset-0 bg-black/40 rounded-xl opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-              <Camera className="w-4 h-4 text-white" />
-            </div>
           </div>
           <div>
             <h1 className="text-2xl font-bold text-white leading-tight">Diário de Feiras</h1>
@@ -84,8 +60,16 @@ export default function Dashboard() {
         <div className="flex items-center space-x-2">
           <button 
             type="button"
-            onClick={() => setIsHelpOpen(true)}
+            onClick={() => setIsBackupOpen(true)}
             className="p-3 rounded-full bg-neutral-800 text-orange-400 border border-neutral-700 hover:bg-neutral-700 active:scale-95 transition-all shadow-md flex items-center justify-center cursor-pointer"
+            title="Backup & Restauração de Dados"
+          >
+            <Database className="w-5 h-5" />
+          </button>
+          <button 
+            type="button"
+            onClick={() => setIsHelpOpen(true)}
+            className="p-3 rounded-full bg-neutral-800 text-neutral-300 border border-neutral-700 hover:bg-neutral-700 active:scale-95 transition-all shadow-md flex items-center justify-center cursor-pointer"
             title="Como usar o aplicativo (Ajuda)"
           >
             <HelpCircle className="w-5 h-5" />
@@ -190,6 +174,11 @@ export default function Dashboard() {
       <HelpModal
         isOpen={isHelpOpen}
         onClose={() => setIsHelpOpen(false)}
+      />
+
+      <BackupModal
+        isOpen={isBackupOpen}
+        onClose={() => setIsBackupOpen(false)}
       />
 
       {/* Modal Nova Feira */}

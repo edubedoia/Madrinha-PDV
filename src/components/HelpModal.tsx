@@ -12,8 +12,12 @@ import {
   Trash2, 
   CheckCircle2,
   Lock,
-  ChevronRight
+  ChevronRight,
+  Database,
+  Upload,
+  FileJson
 } from 'lucide-react';
+import BackupModal from './BackupModal';
 
 interface HelpModalProps {
   isOpen: boolean;
@@ -21,7 +25,8 @@ interface HelpModalProps {
 }
 
 export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
-  const [activeTopic, setActiveTopic] = useState<'all' | 'events' | 'products' | 'pos' | 'finance' | 'install'>('all');
+  const [activeTopic, setActiveTopic] = useState<'all' | 'events' | 'products' | 'pos' | 'finance' | 'install' | 'backup'>('all');
+  const [isBackupModalOpen, setIsBackupModalOpen] = useState(false);
 
   if (!isOpen) return null;
 
@@ -93,6 +98,12 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
             className={`px-3 py-1.5 rounded-xl font-medium whitespace-nowrap transition-all ${activeTopic === 'finance' ? 'bg-orange-600 text-white shadow-sm' : 'bg-neutral-800/80 text-neutral-400 hover:text-white'}`}
           >
             💰 Fechamento
+          </button>
+          <button
+            onClick={() => setActiveTopic('backup')}
+            className={`px-3 py-1.5 rounded-xl font-medium whitespace-nowrap transition-all ${activeTopic === 'backup' ? 'bg-orange-600 text-white shadow-sm' : 'bg-neutral-800/80 text-neutral-400 hover:text-white'}`}
+          >
+            💾 Backup JSON
           </button>
         </div>
 
@@ -228,19 +239,15 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
             </div>
           )}
 
-          {/* TOPIC 5: INSTALAÇÃO E LOGO */}
+          {/* TOPIC 5: INSTALAÇÃO NO CELULAR */}
           {(activeTopic === 'all' || activeTopic === 'install') && (
             <div className="bg-neutral-950/60 border border-neutral-800/90 rounded-2xl p-4 space-y-3">
               <div className="flex items-center gap-2.5 text-orange-400 font-bold text-sm">
                 <Smartphone className="w-4 h-4" />
-                <h3>5. Instalação no Celular & Troca de Logo</h3>
+                <h3>5. Instalação no Celular (Modo Offline / PWA)</h3>
               </div>
 
               <ul className="space-y-2 text-xs text-neutral-300">
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-orange-400 flex-shrink-0 mt-0.5" />
-                  <span><strong>Trocar a Logo:</strong> Toque sobre a imagem da logo no topo da tela inicial ou na feira para escolher qualquer imagem da sua galeria.</span>
-                </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="w-4 h-4 text-orange-400 flex-shrink-0 mt-0.5" />
                   <span><strong>Instalar no iPhone (iOS):</strong> No Safari, toque no ícone de Compartilhar e escolha <strong className="text-white">"Adicionar à Tela de Início"</strong>.</span>
@@ -249,7 +256,45 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                   <CheckCircle2 className="w-4 h-4 text-orange-400 flex-shrink-0 mt-0.5" />
                   <span><strong>Instalar no Android:</strong> No Chrome, toque nos 3 pontinhos do menu e escolha <strong className="text-white">"Instalar aplicativo"</strong>.</span>
                 </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-orange-400 flex-shrink-0 mt-0.5" />
+                  <span><strong>Uso Offline:</strong> Uma vez instalado, o aplicativo abre em tela cheia e funciona em qualquer feira sem depender de internet.</span>
+                </li>
               </ul>
+            </div>
+          )}
+
+          {/* TOPIC 6: BACKUP & RESTAURAÇÃO */}
+          {(activeTopic === 'all' || activeTopic === 'backup') && (
+            <div className="bg-neutral-950/60 border border-neutral-800/90 rounded-2xl p-4 space-y-3">
+              <div className="flex items-center gap-2.5 text-orange-400 font-bold text-sm">
+                <Database className="w-4 h-4" />
+                <h3>6. Backup Geral & Restauração (.JSON)</h3>
+              </div>
+
+              <p className="text-xs text-neutral-300 leading-relaxed">
+                Você pode salvar uma cópia completa de segurança com <strong>todos os produtos, feiras, histórico de vendas e despesas</strong> em um único arquivo <code className="bg-neutral-800 text-orange-300 px-1 py-0.5 rounded font-mono text-[11px]">.json</code>.
+              </p>
+
+              <ul className="space-y-2 text-xs text-neutral-300">
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-orange-400 flex-shrink-0 mt-0.5" />
+                  <span><strong>Exportar Backup:</strong> Baixe o arquivo JSON para salvar no seu Google Drive, WhatsApp ou computador.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-orange-400 flex-shrink-0 mt-0.5" />
+                  <span><strong>Restaurar Backup:</strong> Ao trocar de celular ou reinstalar o app, basta carregar o arquivo JSON para recuperar 100% dos dados.</span>
+                </li>
+              </ul>
+
+              <button
+                type="button"
+                onClick={() => setIsBackupModalOpen(true)}
+                className="w-full mt-2 py-3 px-4 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-md active:scale-98 cursor-pointer"
+              >
+                <Database className="w-4 h-4" />
+                <span>Abrir Ferramenta de Backup & Restauração</span>
+              </button>
             </div>
           )}
 
@@ -267,6 +312,11 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
         </div>
 
       </div>
+
+      <BackupModal
+        isOpen={isBackupModalOpen}
+        onClose={() => setIsBackupModalOpen(false)}
+      />
     </div>
   );
 }

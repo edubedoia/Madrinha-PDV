@@ -1,8 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store';
 import { calculateEventSummary, formatCurrency, slugifyFilename } from '../lib/utils';
-import { ArrowLeft, ShoppingBag, Receipt, Gift, Download, AlertCircle, Camera, Trash2, HelpCircle } from 'lucide-react';
+import { ArrowLeft, ShoppingBag, Receipt, Gift, Download, AlertCircle, Trash2, HelpCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import DeleteEventModal from './DeleteEventModal';
@@ -11,8 +11,7 @@ import HelpModal from './HelpModal';
 export default function EventDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { events, sales, expenses, donations, products, customLogo, setCustomLogo, addExpense, addDonation, closeEvent } = useAppStore();
-  const logoInputRef = useRef<HTMLInputElement>(null);
+  const { events, sales, expenses, donations, products, addExpense, addDonation, closeEvent } = useAppStore();
   
   const event = events.find(e => e.id === id);
   const [activeTab, setActiveTab] = useState<'resumo' | 'despesas' | 'doacoes'>('resumo');
@@ -20,18 +19,6 @@ export default function EventDetails() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [rating, setRating] = useState<number>(5);
-
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const base64 = event.target?.result as string;
-        setCustomLogo(base64);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
   
   if (!event) return <div className="p-4 text-center">Evento não encontrado</div>;
 
@@ -205,31 +192,13 @@ export default function EventDetails() {
               <p className="text-4xl font-extrabold tracking-tight text-white">{formatCurrency(summary.netProfit)}</p>
             </div>
             
-            <div className="relative group">
-              <input 
-                type="file" 
-                ref={logoInputRef} 
-                onChange={handleLogoUpload} 
-                accept="image/*" 
-                className="hidden" 
+            <div className="w-18 h-18 sm:w-22 sm:h-22 flex-shrink-0 flex items-center justify-center p-0">
+              <img 
+                src="/madrinha_logo.png" 
+                alt="Madrinha Cozinha Artesanal" 
+                className="w-full h-full object-contain filter drop-shadow-md" 
+                referrerPolicy="no-referrer"
               />
-              <button
-                type="button"
-                onClick={() => logoInputRef.current?.click()}
-                title="Clique para trocar ou carregar sua logo oficial"
-                className="w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 flex items-center justify-center p-0 bg-transparent rounded-xl transition-all relative overflow-hidden group active:scale-95 cursor-pointer"
-              >
-                <img 
-                  src={customLogo || "/madrinha_logo.png"} 
-                  alt="Madrinha Cozinha Artesanal" 
-                  className="w-full h-full object-contain filter drop-shadow-md hover:brightness-105 transition-all" 
-                  referrerPolicy="no-referrer"
-                />
-                <div className="absolute inset-0 bg-black/40 rounded-xl opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white transition-opacity text-[10px] font-semibold">
-                  <Camera className="w-4 h-4 mb-0.5 text-orange-300" />
-                  <span>Trocar</span>
-                </div>
-              </button>
             </div>
           </div>
           
